@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:parveen_tailors/constants/colors.dart';
 import 'package:parveen_tailors/database/customers_db.dart';
 import 'package:parveen_tailors/screens/custome_page.dart';
+import 'package:parveen_tailors/screens/customer_page2.dart';
 import 'package:parveen_tailors/screens/edit_customer_page.dart';
 import 'gsheet_setup.dart';
+import 'package:parveen_tailors/screens/edit_customer_page2.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -21,6 +23,7 @@ class _HomeState extends State<Home> {
   List<Map<String, dynamic>> allNotes = [];
   List<Map<String, dynamic>> filteredNotes = [];
   CustomersDB? DBRef;
+  bool recentBool = true;
 
   @override
   void initState() {
@@ -44,27 +47,12 @@ class _HomeState extends State<Home> {
     }
   }
 
-  // void _handleToDoChange(ToDo todo) {
-  //   setState(() {
-  //     todo.isDone = !todo.isDone;
-  //   });
-  // }
-
-  // void _deleteToDoItem(String id) {
-  //   setState(() {
-  //     toDoList.removeWhere((item) => item.id == id);
-  //   });
-  // }
-
-  // void _addToDoItem(String todo) {
-  //   setState(() {
-  //     toDoList.add(ToDo(
-  //       id: DateTime.now().millisecondsSinceEpoch.toString(),
-  //       toDoText: todo,
-  //     ));
-  //   });
-  //   _toDoController.clear();
-  // }
+  Future<void> fetchForUpdate(int serialno) async {
+    if (DBRef != null) {
+      var result = await DBRef!.getData(sno: serialno);
+      setState(() {});
+    }
+  }
 
   void _runFilter(String enteredKeyword) {
     List<Map<String, dynamic>> results = [];
@@ -73,16 +61,23 @@ class _HomeState extends State<Home> {
     } else {
       results = allNotes
           .where((item) =>
-              item[CustomersDB.COLUMN_NOTE_TITLE] != null &&
-              item[CustomersDB.COLUMN_NOTE_TITLE]!
-                  .toLowerCase()
-                  .contains(enteredKeyword.toLowerCase()))
+              (item[CustomersDB.COLUMN_NOTE_TITLE] != null &&
+                  item[CustomersDB.COLUMN_NOTE_TITLE]!
+                      .toLowerCase()
+                      .contains(enteredKeyword.toLowerCase())) ||
+              (item[CustomersDB.COLUMN_NOTE_DESC] != null &&
+                  item[CustomersDB.COLUMN_NOTE_DESC]!
+                      .toLowerCase()
+                      .contains(enteredKeyword.toLowerCase())))
           .toList();
     }
+
     setState(() {
       filteredNotes = results;
     });
   }
+
+  bool showOptions = false;
 
   @override
   Widget build(BuildContext context) {
@@ -92,19 +87,24 @@ class _HomeState extends State<Home> {
         backgroundColor: const Color(0xfff5f7fa),
         title:
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          IconButton(
-            onPressed: () {
-              getNotes();
-            },
-            icon: const Icon(Icons.refresh_rounded, color: tdBlack, size: 25),
-          ),
           SizedBox(
             height: 50,
-            width: 110,
+            width: 130,
             child: ClipRRect(
-              // borderRadius: const BorderRadius.all(Radius.circular(20)),
-              child: Image.asset('assets/images/PT2copy.png'),
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              child: InkWell(
+                child: Image.asset('assets/images/PT2copy.png'),
+                onTap: () {
+                  setState(() {
+                    recentBool = !recentBool;
+                  });
+                },
+              ),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {},
           )
         ]),
       ),
@@ -121,6 +121,15 @@ class _HomeState extends State<Home> {
                     width: 330,
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5), // Shadow color
+                          spreadRadius: 1, // Spread radius
+                          blurRadius: 5, // Blur radius
+                          offset: const Offset(
+                              0, 3), // Offset in X and Y directions
+                        ),
+                      ],
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -150,7 +159,7 @@ class _HomeState extends State<Home> {
                       padding: EdgeInsets.symmetric(horizontal: 15.0),
                       child: Text(
                         'Customers',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
                           fontFamily:
@@ -160,97 +169,129 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: filteredNotes.length,
-                      itemBuilder: (_, index) {
-                        // Reversed list
-                        int reversedIndex = filteredNotes.length - 1 - index;
+                    child: RefreshIndicator(
+                      displacement: 35,
+                      onRefresh: () {
+                        return getNotes();
+                      },
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(4),
+                        itemCount: filteredNotes.length,
+                        itemBuilder: (_, index) {
+                          // Reversed list
+                          int reversedIndex = filteredNotes.length - 1 - index;
 
-                        return ListTile(
-                          leading: Text('${index + 1}'),
-                          title: Text(
-                            filteredNotes[reversedIndex]
-                                [CustomersDB.COLUMN_NOTE_TITLE],
-                            style: const TextStyle(fontFamily: 'Lato'),
-                          ),
-                          subtitle: Text(
-                            filteredNotes[reversedIndex]
-                                [CustomersDB.COLUMN_NOTE_DESC],
-                            style: const TextStyle(fontFamily: 'Lato'),
-                          ),
-                          trailing: SizedBox(
-                            width: 80,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (context) {
-                                        return BottomSheetView(
-                                          DBRef: DBRef!,
-                                          getNote: getNotes,
-                                          isUpdate: true,
-                                          sno: filteredNotes[reversedIndex]
-                                              [CustomersDB.COLUMN_NOTE_SNO],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: const Icon(Icons.edit, size: 26),
-                                ),
-                                const SizedBox(width: 20),
-                                InkWell(
-                                  onTap: () async {
-                                    bool check = await alert(context: context);
-                                    if (check) {
-                                      bool deletionSuccess =
-                                          await DBRef!.deleteNote(
-                                        sno: filteredNotes[reversedIndex]
-                                            [CustomersDB.COLUMN_NOTE_SNO],
-                                      );
-                                      if (deletionSuccess) {
-                                        getNotes(); // Refresh the list after deletion
-                                      }
-                                    } else {
-                                      print('Deletion canceled');
-                                    }
-                                  },
-                                  child: const Icon(Icons.delete,
-                                      color: Colors.red),
-                                ),
-                              ],
+                          return Container(
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 5,
+                                horizontal: 10), // Optional spacing
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 181, 212,
+                                  239), // Apply background color here
+                              borderRadius: BorderRadius.circular(
+                                  50), // Match the rounded corners
                             ),
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailPage(
-                                  DBRef: DBRef!,
-                                  sno: filteredNotes[reversedIndex]
-                                      [CustomersDB.COLUMN_NOTE_SNO],
+                            child: ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    15), // Rounded corners for the ListTile
+                              ),
+                              leading: Text('${index + 1}'),
+                              title: Text(
+                                filteredNotes[reversedIndex]
+                                    [CustomersDB.COLUMN_NOTE_TITLE],
+                                style: const TextStyle(fontFamily: 'Lato'),
+                              ),
+                              subtitle: Text(
+                                filteredNotes[reversedIndex]
+                                    [CustomersDB.COLUMN_NOTE_DESC],
+                                style: const TextStyle(fontFamily: 'Lato'),
+                              ),
+                              trailing: SizedBox(
+                                width: 50,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (!showOptions)
+                                      InkWell(
+                                        onTap: () {
+                                          showModalBottomSheet(
+                                            isScrollControlled: true,
+                                            context: context,
+                                            builder: (context) {
+                                              return BottomSheetView(
+                                                DBRef: DBRef!,
+                                                getNote: getNotes,
+                                                isUpdate: true,
+                                                sno:
+                                                    filteredNotes[reversedIndex]
+                                                        [CustomersDB
+                                                            .COLUMN_NOTE_SNO],
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: const Icon(
+                                            Icons.edit_note_rounded,
+                                            size: 30),
+                                      ),
+                                    if (showOptions)
+                                      InkWell(
+                                        onTap: () async {
+                                          bool check =
+                                              await alert(context: context);
+                                          if (check) {
+                                            bool deletionSuccess =
+                                                await DBRef!.deleteNote(
+                                              sno: filteredNotes[reversedIndex]
+                                                  [CustomersDB.COLUMN_NOTE_SNO],
+                                            );
+                                            if (deletionSuccess) {
+                                              getNotes(); // Refresh the list after deletion
+                                            }
+                                          } else {
+                                            print('Deletion canceled');
+                                          }
+                                        },
+                                        child: const Icon(Icons.delete,
+                                            color: Colors.red),
+                                      ),
+                                  ],
                                 ),
                               ),
-                            );
-                          },
-                        );
-                      },
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailPage2(
+                                      DBRef: DBRef!,
+                                      sno: filteredNotes[reversedIndex]
+                                          [CustomersDB.COLUMN_NOTE_SNO],
+                                    ),
+                                  ),
+                                );
+                              },
+                              onLongPress: () {
+                                showOptions = !showOptions;
+                                setState(() {});
+                              },
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
               ),
             )
           : const Center(
-              //child: Text('No notes to show !!'),
-              child: Text('Nothing to Show!!'),
+              child: CircularProgressIndicator(),
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           titleController.clear();
           descController.clear();
+          receiptController.clear();
           showModalBottomSheet(
             isScrollControlled: true,
             context: context,
@@ -330,6 +371,7 @@ class BottomSheetView extends StatefulWidget {
 
 TextEditingController titleController = TextEditingController();
 TextEditingController descController = TextEditingController();
+TextEditingController receiptController = TextEditingController();
 
 class _BottomSheetViewState extends State<BottomSheetView> {
   //controller...
@@ -363,7 +405,7 @@ class _BottomSheetViewState extends State<BottomSheetView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.4 +
+      height: MediaQuery.of(context).size.height * 0.5 +
           MediaQuery.of(context).viewInsets.bottom,
       padding: EdgeInsets.only(
           top: 11,
@@ -388,10 +430,10 @@ class _BottomSheetViewState extends State<BottomSheetView> {
               hintText: "Enter Name here",
               label: const Text('Name', style: TextStyle(fontFamily: 'Lato')),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(11),
+                borderRadius: BorderRadius.circular(4),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
           ),
@@ -406,10 +448,28 @@ class _BottomSheetViewState extends State<BottomSheetView> {
               label:
                   const Text('Contact', style: TextStyle(fontFamily: 'Lato')),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(11),
+                borderRadius: BorderRadius.circular(4),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          TextField(
+            keyboardType: TextInputType.number,
+            controller: receiptController,
+            decoration: InputDecoration(
+              hintText: "Enter Receipt No. here",
+              label: const Text('Receipt No.',
+                  style: TextStyle(fontFamily: 'Lato')),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
           ),
@@ -430,7 +490,7 @@ class _BottomSheetViewState extends State<BottomSheetView> {
                     ),
                     onPressed: () async {
                       Navigator.pop(context);
-                      await widget.getNote();
+                      //await widget.getNote();
                     },
                     child: const Text('Cancel',
                         style: TextStyle(
@@ -457,16 +517,18 @@ class _BottomSheetViewState extends State<BottomSheetView> {
                     //save in database
                     var mtitle = titleController.text;
                     var mdesc = descController.text;
+                    var mreceipt = receiptController.text;
 
                     if (mtitle.isNotEmpty && mdesc.isNotEmpty) {
                       if (widget.DBRef != null) {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CustomerPage(
+                            builder: (context) => EditPage2(
                               DBRef: widget.DBRef,
                               name: mtitle,
                               contact: mdesc,
+                              receipt: mreceipt,
                               isUpdate: widget.isUpdate ? true : false,
                               sno: widget.sno,
                             ),
@@ -474,7 +536,7 @@ class _BottomSheetViewState extends State<BottomSheetView> {
                         );
                         //Navigator.pop(context);
                         // Call getNotes from parent class to refresh the list
-                        await widget.getNote();
+                        //await widget.getNote();
                       } else {
                         // Handle the case where DBRef is null
                         print('DBRef is null!');
@@ -492,6 +554,7 @@ class _BottomSheetViewState extends State<BottomSheetView> {
                     }
                     titleController.clear();
                     descController.clear();
+                    receiptController.clear();
                   },
                   child: Text(
                       widget.isUpdate ? 'Update Contact' : 'Add Contact',
@@ -508,45 +571,3 @@ class _BottomSheetViewState extends State<BottomSheetView> {
     );
   }
 }
-
-// Widget searchBox() {
-//   return Container(
-//     padding: const EdgeInsets.symmetric(horizontal: 15),
-//     decoration: BoxDecoration(
-//       color: Colors.white,
-//       borderRadius: BorderRadius.circular(20),
-//     ),
-//     child: TextField(
-//       onChanged: (value) => _runFilter(value),
-//       decoration: const InputDecoration(
-//           contentPadding: EdgeInsets.all(0),
-//           prefixIcon: Icon(Icons.search, color: tdBlack, size: 20),
-//           prefixIconConstraints: BoxConstraints(maxHeight: 20, minWidth: 25),
-//           border: InputBorder.none,
-//           hintText: ' Search',
-//           hintStyle: TextStyle(
-//             color: tdgrey,
-//           )),
-//     ),
-//   );
-// }
-
-// AppBar _buildAppBar(BuildContext context) {
-//   return AppBar(
-//     backgroundColor: tdBGColor,
-//     title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-//       IconButton(
-//         onPressed: () {},
-//         icon: const Icon(Icons.menu, color: tdBlack, size: 30),
-//       ),
-//       SizedBox(
-//         height: 50,
-//         width: 110,
-//         child: ClipRRect(
-//           //borderRadius: BorderRadius.circular(10),
-//           child: Image.asset('assets/images/PT2copy.png'),
-//         ),
-//       )
-//     ]),
-//   );
-// }
