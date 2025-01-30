@@ -1,6 +1,6 @@
-# flutter_todo_app1
+# Flutter Measurement Recording Application
 
-A new Flutter project.
+For recording measurements and store them in a database locally on device as well as backup on Google Sheets.
 
 ## Getting Started
 
