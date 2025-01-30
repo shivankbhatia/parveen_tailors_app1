@@ -74,7 +74,7 @@ class _DetailPageState extends State<EditPage2> with TickerProviderStateMixin {
   late CustomersDB dbRef;
   List<Map<String, dynamic>> allNotes = [];
   bool isSaved = false;
-  //File? selectedImage;
+  File? selectedImage;
 
   @override
   void initState() {
@@ -285,13 +285,13 @@ class _DetailPageState extends State<EditPage2> with TickerProviderStateMixin {
                                     var mdate2 = date2.text;
                                     var mamount1 = amount1.text;
                                     var mamount2 = amount2.text;
-                                    //var image;
-                                    // if (selectedImage != null) {
-                                    //   image =
-                                    //       await selectedImage!.readAsBytes();
-                                    // } else {
-                                    //   image = null;
-                                    // }
+                                    var image;
+                                    if (selectedImage != null) {
+                                      image =
+                                          await selectedImage!.readAsBytes();
+                                    } else {
+                                      image = null;
+                                    }
 
                                     if (mtitle.isNotEmpty && mdesc.isNotEmpty) {
                                       if (widget.DBRef != null) {
@@ -325,7 +325,7 @@ class _DetailPageState extends State<EditPage2> with TickerProviderStateMixin {
                                                 amount1: mamount1,
                                                 amount2: mamount2,
                                                 receipt: mreceipt,
-                                                //imageBytes: image,
+                                                imageBytes: image,
                                               )
                                             : await widget.DBRef.addNote(
                                                 ttl: mtitle,
@@ -355,7 +355,7 @@ class _DetailPageState extends State<EditPage2> with TickerProviderStateMixin {
                                                 amount1: mamount1,
                                                 amount2: mamount2,
                                                 receipt: mreceipt,
-                                                //imageBytes: image,
+                                                imageBytes: image,
                                               );
                                         if (check) {
                                           isSaved = true;
@@ -1488,119 +1488,119 @@ class _DetailPageState extends State<EditPage2> with TickerProviderStateMixin {
                     ),
                   ]),
                 ),
-                // Column(
-                //   mainAxisAlignment:
-                //       MainAxisAlignment.center, // Center content vertically
-                //   crossAxisAlignment:
-                //       CrossAxisAlignment.center, // Center content horizontally
-                //   children: [
-                //     if (selectedImage == null)
-                //       Center(
-                //         child: InkWell(
-                //           child: Container(
-                //               decoration: BoxDecoration(
-                //                 color: Color.fromARGB(122, 183, 219, 252),
-                //                 borderRadius: BorderRadius.circular(20),
-                //               ),
-                //               height: 50,
-                //               width: 220,
-                //               child: Row(
-                //                 children: [
-                //                   Image.asset(
-                //                     'assets/images/gallery.png',
-                //                   ),
-                //                   const Padding(
-                //                     padding: const EdgeInsets.all(8.0),
-                //                     child: Text('Upload from Gallery',
-                //                         style: TextStyle(fontFamily: 'Lato')),
-                //                   )
-                //                 ],
-                //               )),
-                //           onTap: () {
-                //             _pickImageFromGallery();
-                //           },
-                //         ),
-                //       ),
-                //     const SizedBox(
-                //       height: 20,
-                //     ),
-                //     if (selectedImage == null)
-                //       Center(
-                //         child: InkWell(
-                //           child: Container(
-                //               decoration: BoxDecoration(
-                //                 color: Color.fromARGB(122, 183, 219, 252),
-                //                 borderRadius: BorderRadius.circular(20),
-                //               ),
-                //               height: 50,
-                //               width: 220,
-                //               child: Row(
-                //                 children: [
-                //                   Image.asset(
-                //                     'assets/images/camera2.png',
-                //                   ),
-                //                   const Padding(
-                //                     padding: const EdgeInsets.all(8.0),
-                //                     child: Text('Click from Camera',
-                //                         style: TextStyle(fontFamily: 'Lato')),
-                //                   )
-                //                 ],
-                //               )),
-                //           onTap: () {
-                //             _pickImageFromCamera();
-                //           },
-                //         ),
-                //       ),
-                //     const SizedBox(
-                //       height: 20,
-                //     ),
-                //     if (selectedImage != null)
-                //       SizedBox(
-                //         height: 470,
-                //         width: double.infinity,
-                //         child: selectedImage != null
-                //             ? Image.file(selectedImage!)
-                //             : null,
-                //       ),
-                //     if (selectedImage != null)
-                //       IconButton(
-                //         icon: const Icon(
-                //           Icons.delete,
-                //           color: Colors.red,
-                //         ),
-                //         onPressed: () async {
-                //           bool check = await alert(context: context);
-                //           if (check) {
-                //             selectedImage = null;
-                //           }
-                //           selectedImage = null;
-                //           setState(() {});
-                //         },
-                //       )
-                //   ],
-                //)
+                Column(
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Center content vertically
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center, // Center content horizontally
+                  children: [
+                    if (selectedImage == null)
+                      Center(
+                        child: InkWell(
+                          child: Container(
+                              decoration: BoxDecoration(
+                                color: Color.fromARGB(122, 183, 219, 252),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              height: 50,
+                              width: 220,
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    'assets/images/gallery.png',
+                                  ),
+                                  const Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text('Upload from Gallery',
+                                        style: TextStyle(fontFamily: 'Lato')),
+                                  )
+                                ],
+                              )),
+                          onTap: () {
+                            _pickImageFromGallery();
+                          },
+                        ),
+                      ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    if (selectedImage == null)
+                      Center(
+                        child: InkWell(
+                          child: Container(
+                              decoration: BoxDecoration(
+                                color: Color.fromARGB(122, 183, 219, 252),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              height: 50,
+                              width: 220,
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    'assets/images/camera2.png',
+                                  ),
+                                  const Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text('Click from Camera',
+                                        style: TextStyle(fontFamily: 'Lato')),
+                                  )
+                                ],
+                              )),
+                          onTap: () {
+                            _pickImageFromCamera();
+                          },
+                        ),
+                      ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    if (selectedImage != null)
+                      SizedBox(
+                        height: 470,
+                        width: double.infinity,
+                        child: selectedImage != null
+                            ? Image.file(selectedImage!)
+                            : null,
+                      ),
+                    if (selectedImage != null)
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                        ),
+                        onPressed: () async {
+                          bool check = await alert(context: context);
+                          if (check) {
+                            selectedImage = null;
+                          }
+                          selectedImage = null;
+                          setState(() {});
+                        },
+                      )
+                  ],
+                )
               ]),
             ),
     );
   }
 
-  // Future _pickImageFromGallery() async {
-  //   final returnedImage =
-  //       await ImagePicker().pickImage(source: ImageSource.gallery);
-  //   if (returnedImage == null) return;
-  //   setState(() {
-  //     selectedImage = File(returnedImage!.path);
-  //   });
-  // }
+  Future _pickImageFromGallery() async {
+    final returnedImage =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (returnedImage == null) return;
+    setState(() {
+      selectedImage = File(returnedImage!.path);
+    });
+  }
 
-  // Future _pickImageFromCamera() async {
-  //   final returnedImage =
-  //       await ImagePicker().pickImage(source: ImageSource.camera);
-  //   if (returnedImage == null) return;
-  //   setState(() {
-  //     selectedImage = File(returnedImage!.path);
-  //   });
-  // }
+  Future _pickImageFromCamera() async {
+    final returnedImage =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+    if (returnedImage == null) return;
+    setState(() {
+      selectedImage = File(returnedImage!.path);
+    });
+  }
 
   Future<bool> alert({required BuildContext context}) async {
     bool check = false;

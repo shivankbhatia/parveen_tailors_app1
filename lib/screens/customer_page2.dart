@@ -988,11 +988,11 @@ class _DetailPageState extends State<DetailPage2>
                     ],
                   ),
                 ),
-                // Container(
-                //   height: 320,
-                //   width: 420,
-                //   child: Image.memory(data![CustomersDB.COLUMN_NOTE_IMAGE]),
-                // )
+                Container(
+                  height: 320,
+                  width: 420,
+                  child: Image.memory(data![CustomersDB.COLUMN_NOTE_IMAGE]),
+                )
               ]),
             ),
     );

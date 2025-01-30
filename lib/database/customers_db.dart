@@ -42,7 +42,7 @@ class CustomersDB {
   static final String COLUMN_NOTE_AMOUNT1 = "totalamount";
   static final String COLUMN_NOTE_AMOUNT2 = "balance";
   static final String COLUMN_NOTE_RECEIPT = "receipt";
-  //static final String COLUMN_NOTE_IMAGE = "image";
+  static final String COLUMN_NOTE_IMAGE = "image";
 
   Database? myDB;
   // db open
@@ -58,14 +58,14 @@ class CustomersDB {
 
   Future<Database> openDB() async {
     Directory appDir = await getApplicationDocumentsDirectory();
-    String DBpath = join(appDir.path, "customersDB3.db");
+    String DBpath = join(appDir.path, "customersDB5.db");
 
     return await openDatabase(DBpath, onCreate: (db, version) {
       // create all tables here
       // 1.
       print('Creating table...');
       db.execute(
-          "create table $TABLE_NOTE ( $COLUMN_NOTE_SNO integer primary key autoincrement, $COLUMN_NOTE_TITLE text, $COLUMN_NOTE_DESC text, $COLUMN_MEAS_SHIRTL text, $COLUMN_MEAS_SHIRTC text, $COLUMN_MEAS_SHIRTT text, $COLUMN_MEAS_SHIRTB text, $COLUMN_MEAS_SHIRTG text, $COLUMN_MEAS_SHIRTS text, $COLUMN_MEAS_SHIRTSTMCH text, $COLUMN_MEAS_SHIRTHIP text, $COLUMN_MEAS_SHIRTHB text, $COLUMN_MEAS_KURTAL text, $COLUMN_MEAS_KURTAH text, $COLUMN_MEAS_KURTAM text, $COLUMN_MEAS_PANTL text,  $COLUMN_MEAS_PANTK text, $COLUMN_MEAS_PANTH text, $COLUMN_MEAS_PANTP text,  $COLUMN_MEAS_PANTA text, $COLUMN_MEAS_PANTM text, $COLUMN_MEAS_PANTBP text, $COLUMN_NOTE_ADDITIONAL text, $COLUMN_NOTE_DATE1 text, $COLUMN_NOTE_DATE2 text, $COLUMN_NOTE_AMOUNT1 text, $COLUMN_NOTE_AMOUNT2 text, $COLUMN_NOTE_RECEIPT text)");
+          "create table $TABLE_NOTE ( $COLUMN_NOTE_SNO integer primary key autoincrement, $COLUMN_NOTE_TITLE text, $COLUMN_NOTE_DESC text, $COLUMN_MEAS_SHIRTL text, $COLUMN_MEAS_SHIRTC text, $COLUMN_MEAS_SHIRTT text, $COLUMN_MEAS_SHIRTB text, $COLUMN_MEAS_SHIRTG text, $COLUMN_MEAS_SHIRTS text, $COLUMN_MEAS_SHIRTSTMCH text, $COLUMN_MEAS_SHIRTHIP text, $COLUMN_MEAS_SHIRTHB text, $COLUMN_MEAS_KURTAL text, $COLUMN_MEAS_KURTAH text, $COLUMN_MEAS_KURTAM text, $COLUMN_MEAS_PANTL text,  $COLUMN_MEAS_PANTK text, $COLUMN_MEAS_PANTH text, $COLUMN_MEAS_PANTP text,  $COLUMN_MEAS_PANTA text, $COLUMN_MEAS_PANTM text, $COLUMN_MEAS_PANTBP text, $COLUMN_NOTE_ADDITIONAL text, $COLUMN_NOTE_DATE1 text, $COLUMN_NOTE_DATE2 text, $COLUMN_NOTE_AMOUNT1 text, $COLUMN_NOTE_AMOUNT2 text, $COLUMN_NOTE_RECEIPT text, $COLUMN_NOTE_IMAGE BLOB)");
       // n...
     }, version: 1);
   }
@@ -109,7 +109,7 @@ class CustomersDB {
     required String amount1,
     required String amount2,
     required String receipt,
-    // required Uint8List imageBytes,
+    required Uint8List imageBytes,
   }) async {
     var db = await getDB();
     int rowsAffected = await db.insert(TABLE_NOTE, {
@@ -140,7 +140,7 @@ class CustomersDB {
       COLUMN_NOTE_AMOUNT1: amount1,
       COLUMN_NOTE_AMOUNT2: amount2,
       COLUMN_NOTE_RECEIPT: receipt,
-      // COLUMN_NOTE_IMAGE: imageBytes,
+      COLUMN_NOTE_IMAGE: imageBytes,
     });
     print('Rows affected by addNote: $rowsAffected');
     return rowsAffected > 0;
@@ -216,7 +216,7 @@ class CustomersDB {
     required String amount1,
     required String amount2,
     required String receipt,
-    // required Uint8List imageBytes,
+    required Uint8List imageBytes,
   }) async {
     var db = await getDB();
 
@@ -250,7 +250,7 @@ class CustomersDB {
           COLUMN_NOTE_AMOUNT1: amount1,
           COLUMN_NOTE_AMOUNT2: amount2,
           COLUMN_NOTE_RECEIPT: receipt,
-          // COLUMN_NOTE_IMAGE: imageBytes,
+          COLUMN_NOTE_IMAGE: imageBytes,
         },
         //find that particular row for the updation...
         where: "$COLUMN_NOTE_SNO = $sno");
